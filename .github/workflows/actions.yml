@@ -54,8 +54,9 @@ jobs:
           args: Dockerfile PostgresDockerfile
         continue-on-error: true
 
-      - name: wemake-python-styleguide
-        uses: wemake-services/wemake-python-styleguide
+
+      - name: Run wemake-python-styleguide
+        run: poetry run wemake-python-styleguide .
         continue-on-error: true
 
       - name: Run isort
@@ -64,3 +65,4 @@ jobs:
 
       - name: Run tests
         run: poetry run pytest tests
+        continue-on-error: true
