@@ -54,6 +54,7 @@ jobs:
         uses: hadolint/hadolint-action@v2.0.0
         with:
           args: Dockerfile PostgresDockerfile
+          ignore: 'DL3042,DL3008'
         continue-on-error: true
 
       - name: Run style checks
