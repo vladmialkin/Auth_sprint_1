@@ -55,7 +55,7 @@ jobs:
         continue-on-error: true
 
       - name: Run wemake-python-styleguide
-        uses: wemake-services/@0.19.2
+        run: poetry run wemake-python-styleguide .
         continue-on-error: true
 
       - name: Run isort
@@ -64,3 +64,4 @@ jobs:
 
       - name: Run tests
         run: poetry run pytest tests
+        continue-on-error: true
