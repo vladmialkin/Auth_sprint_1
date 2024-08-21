@@ -1,0 +1,30 @@
+name: Python Styleguide
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - '**'
+
+jobs:
+  stylecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Извлечение кода из репозитория
+        uses: actions/checkout@v2
+
+      - name: Установка Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12.4' 
+
+      - name: Установка зависимостей
+        run: |
+          pip install wemake-python-styleguide
+
+      - name: Установка wemake-python-styleguide
+        run: |
+          wemake-python-styleguide .
