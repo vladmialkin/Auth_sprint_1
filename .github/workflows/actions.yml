@@ -45,16 +45,13 @@ jobs:
         run: poetry install
 
       - name: Run autopep8
-        run: poetry run autopep8 --in-place --recursive .
+        run: poetry run autopep8 --recursive --in-place --aggressive --aggressive .
         continue-on-error: true
 
       - name: Run hadolint
         uses: hadolint/hadolint-action@v2.0.0
         with:
-          args: |
-            - Dockerfile
-            - '--ignore DL3042,DL3008'
-        continue-on-error: true
+          hadolint_args: '--ignore DL3042,DL3008'
 
       - name: Run wemake-python-styleguide
         run: poetry run wemake-python-styleguide .
