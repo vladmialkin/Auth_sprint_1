@@ -53,9 +53,8 @@ jobs:
         with:
           ignore: 'DL3042,DL3008'
 
-      - name: Run wemake-python-styleguide
-        run: poetry run wemake-python-styleguide .
-        continue-on-error: true
+      - name: wemake-python-styleguide
+        uses: wemake-services/wemake-python-styleguide@0.19.2
 
       - name: Run isort
         run: poetry run isort --check-only --recursive .
