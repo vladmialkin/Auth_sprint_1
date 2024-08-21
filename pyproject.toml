@@ -16,6 +16,7 @@ passlib = "^1.7.4"
 postgres = "^4.0"
 async-fastapi-jwt-auth = {extras = ["asymmetric"], version = "^0.6.6"}
 asyncpg = "^0.29.0"
+pytest = "^8.3.2"
 
 
 [build-system]
