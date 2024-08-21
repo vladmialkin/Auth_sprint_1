@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@main
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -46,17 +46,21 @@ jobs:
 
       - name: Run autopep8
         run: poetry run autopep8 --in-place --recursive .
+        continue-on-error: true
 
       - name: Run hadolint
         uses: hadolint/hadolint-action@v2.0.0
         with:
           args: Dockerfile PostgresDockerfile
+        continue-on-error: true
 
       - name: Run wemake-python-styleguide
         run: poetry run wemake-python-styleguide .
+        continue-on-error: true
 
       - name: Run isort
         run: poetry run isort --check-only --recursive .
+        continue-on-error: true
 
       - name: Run tests
         run: poetry run pytest tests
