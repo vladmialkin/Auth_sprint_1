@@ -14,7 +14,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.12
 
       - name: wemake-python-styleguide
         uses: wemake-services/wemake-python-styleguide@0.19.2
@@ -33,7 +36,6 @@ jobs:
         run: exit 1
 
       - name: isort
-        id: isort
-        uses: pyaction/isort@v1
+      - uses: isort/isort-action@master
         with:
-          args: --recursive --in-place .
+            requirementsFiles: "requirements.txt requirements-test.txt"
