@@ -44,9 +44,11 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Run autopep8
-        run: poetry run autopep8 --in-place --recursive .
-        continue-on-error: true
+      - name: autopep8
+        id: autopep8
+        uses: peter-evans/autopep8@v2
+        with:
+          args: --recursive --in-place --aggressive --aggressive .
 
       - name: Run hadolint
         uses: hadolint/hadolint-action@v2.0.0
@@ -54,15 +56,16 @@ jobs:
           args: Dockerfile PostgresDockerfile
         continue-on-error: true
 
-
-      - name: Run wemake-python-styleguide
-        run: poetry run wemake-python-styleguide .
+      - name: Run style checks
+        run: |
+            poetry run flake8 --ignore D100,D104,WPS411 src
         continue-on-error: true
 
       - name: Run isort
-        run: poetry run isort --check-only --recursive .
-        continue-on-error: true
+        uses: isort/isort-action@master
 
       - name: Run tests
-        run: poetry run pytest tests
-        continue-on-error: true
+        run: poetry run coverage run -m pytest  -v -s
+
+      - name: Generate Coverage Report
+        run: coverage report -m
