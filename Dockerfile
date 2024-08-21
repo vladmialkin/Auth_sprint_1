@@ -14,7 +14,7 @@ COPY pyproject.toml /
 
 # Обновление pip и установка Poetry с использованием --no-cache-dir
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir poetry && \
+    pip install poetry==1.8.2 && \
     poetry config virtualenvs.create false && \
     poetry install --no-root --no-interaction --no-ansi
 
