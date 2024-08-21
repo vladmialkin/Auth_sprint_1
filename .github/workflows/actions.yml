@@ -13,47 +13,50 @@ jobs:
     services:
       redis:
         image: redis:7.2.5
-        env:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: example
         ports:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v3
 
-      - name: setup-python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12.4'
 
-      - name: setup-poetry
+      - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "${{ github.workspace }}/.local/bin" >> $GITHUB_PATH
 
-      - name: dependencies
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Configure Poetry
         run: |
           poetry config virtualenvs.create true --local
           poetry config virtualenvs.in-project true --local
 
-      - uses: actions/cache@v3
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run autopep8
+        run: poetry run autopep8 --in-place --recursive .
+
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v2.8.0
         with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
+          args: Dockerfile PostgresDockerfile
 
-      - name: autopep8
-        run: autopep8
+      - name: Run wemake-python-styleguide
+        run: poetry run wemake-python-styleguide .
 
-      - name: hadolint
-        uses: hadolint/hadolint-action@v2.0.0
-        run: hadolint Dockerfile PostgresDockerfile
+      - name: Run isort
+        run: poetry run isort --check-only --recursive .
 
-      - name: wemake-python-styleguide
-        run: wemake-python-styleguide
-
-      - name: isort
-        uses: isort
-
-      - name: test
-        run: pytest tests
+      - name: Run tests
+        run: poetry run pytest tests
