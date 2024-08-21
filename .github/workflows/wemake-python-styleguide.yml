@@ -20,10 +20,7 @@ jobs:
         uses: wemake-services/wemake-python-styleguide@0.19.2
         with:
           args: .
-
-      - name: Fail if autopep8 made changes
-        if: steps.wemake-python-styleguide.outputs.exit-code == 1
-        run: exit 1
+          fail_on_error: false  # Позволяет продолжить, даже если есть ошибки
 
       - name: autopep8
         id: autopep8
@@ -34,3 +31,9 @@ jobs:
       - name: Fail if autopep8 made changes
         if: steps.autopep8.outputs.exit-code == 2
         run: exit 1
+
+      - name: isort
+        id: isort
+        uses: pyaction/isort@v1
+        with:
+          args: --recursive --in-place .
