@@ -3,10 +3,10 @@ name: Wemake Python Styleguide and autopep8
 on:
   pull_request:
     branches:
-      - '**'
+      - '**'  # Это должно быть '**', чтобы реагировать на все ветки
   push:
     branches:
-      - '**'
+      - '**'  # Это тоже должно быть '**'
 
 jobs:
   stylecheck:
@@ -14,28 +14,30 @@ jobs:
 
     steps:
       - name: Check out code
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
         with:
           python-version: 3.12
 
-      - name: wemake-python-styleguide
+      - name: Run wemake-python-styleguide
         uses: wemake-services/wemake-python-styleguide@0.19.2
         with:
           args: .
           fail_on_error: false  # Позволяет продолжить, даже если есть ошибки
 
-      - name: autopep8
+      - name: Run autopep8
         id: autopep8
-        uses: peter-evans/autopep8@v2
-        with:
-          args: --recursive --in-place --aggressive --aggressive .
+        run: |
+          pip install autopep8
+          autopep8 --recursive --in-place --aggressive --aggressive .
 
       - name: Fail if autopep8 made changes
         if: steps.autopep8.outputs.exit-code == 2
         run: exit 1
 
-      - name: isort
-      - uses: isort/isort-action@master
+      - name: Run isort
+        uses: isort/isort-action@master
         with:
           requirementsFiles: "pyproject.toml"
