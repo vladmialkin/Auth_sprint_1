@@ -57,6 +57,7 @@ jobs:
         uses: wemake-services/wemake-python-styleguide@0.19.2
         with:
           path: src
+          ignore: D104 D100 WPS411
 
       - name: Run isort
         run: poetry run isort --check-only --recursive src
