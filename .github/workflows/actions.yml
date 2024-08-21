@@ -65,8 +65,7 @@ jobs:
         uses: isort/isort-action@master
 
       - name: Run tests
-        run: |
-          coverage run -m pytest  -v -s  
-          - name: Generate Coverage Report  
-          run: |  
-          coverage report -m
+        run: poetry run coverage run -m pytest  -v -s
+
+      - name: Generate Coverage Report
+        run:  poetry run coverage report -m

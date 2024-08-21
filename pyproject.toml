@@ -18,6 +18,7 @@ async-fastapi-jwt-auth = {extras = ["asymmetric"], version = "^0.6.6"}
 asyncpg = "^0.29.0"
 pytest = "^8.3.2"
 autopep8 = "^2.3.1"
+coverage = "^7.6.1"
 
 
 [build-system]
