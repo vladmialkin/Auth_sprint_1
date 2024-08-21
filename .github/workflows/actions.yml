@@ -59,6 +59,7 @@ jobs:
         uses: wemake-services/wemake-python-styleguide@0.19.2
         with:
           path: src
+          args: '--ignore D100,WPS411'
         continue-on-error: true
 
       - name: Run isort
@@ -68,4 +69,4 @@ jobs:
         run: poetry run coverage run -m pytest  -v -s
 
       - name: Generate Coverage Report
-        run:  poetry run coverage report -m
+        run: coverage report -m

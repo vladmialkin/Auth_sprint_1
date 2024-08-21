@@ -19,22 +19,3 @@ asyncpg = "^0.29.0"
 pytest = "^8.3.2"
 autopep8 = "^2.3.1"
 coverage = "^7.6.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-
-
-[tool.flake8]
-exclude = """
-    .git,
-    __pycache__,
-    build,
-    dist
-"""
-ignore = [
-    "D100",
-    "WPS411",
-]
