@@ -12,10 +12,15 @@ class Base(DeclarativeBase):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=False), server_default=func.now(), onupdate=func.now()
     )
+    __table_args__ = {'schema': 'auth'}
 
     @declared_attr.directive
     def __tablename__(cls) -> str:  # noqa
         return cls.__name__.lower()
+
+    @declared_attr
+    def __table_args__(cls) -> dict:
+        return {'schema': 'auth'}
 
     def to_dict(self, excludes: list[str] = None) -> dict[str, Any]:
         db_obj_dict = self.__dict__.copy()
