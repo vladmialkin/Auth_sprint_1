@@ -12,7 +12,6 @@ class Base(DeclarativeBase):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=False), server_default=func.now(), onupdate=func.now()
     )
-    __table_args__ = {'schema': 'auth'}
 
     @declared_attr.directive
     def __tablename__(cls) -> str:  # noqa
