@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey
 
 
 class Session(Base):
-    user_id: Mapped[UUID] = mapped_column(ForeignKey('auth.user.id', ondelete='CASCADE'))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey('auth.user.id'))
     refresh_token_id: Mapped[UUID] = mapped_column(
         ForeignKey(
             column='auth.refresh_token.id',
