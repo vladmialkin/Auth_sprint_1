@@ -3,7 +3,9 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, registry
+
+mapper_registry = registry()
 
 
 class Base(DeclarativeBase):

@@ -4,4 +4,4 @@ from app.models.base import Base
 
 
 class Role(Base):
-    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(Text(64), unique=True)

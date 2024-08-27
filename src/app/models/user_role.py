@@ -1,12 +1,18 @@
-from uuid import UUID
+from sqlalchemy import ForeignKey, UniqueConstraint, Table, Column
+from app.models.base import Base, mapper_registry
 
-from sqlalchemy import ForeignKey, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
-from app.models.base import Base
-
-
-class UserRole(Base):
-    __tablename__ = 'user_role'
-    user_id: Mapped[UUID] = mapped_column(ForeignKey('auth.user.id', ondelete='CASCADE'), nullable=False)
-    role_id: Mapped[UUID] = mapped_column(ForeignKey('auth.role.id', ondelete='CASCADE'), nullable=False)
+user_role = Table(
+    "user_role",
+    Base.metadata,
+    Column("user_id", ForeignKey('auth.user.id'), primary_key=True),
+    Column("role_id", ForeignKey('auth.role.id'), primary_key=True),
     UniqueConstraint('user_id', 'role_id')
+
+)
+
+
+class UserRole:
+    pass
+
+
+mapper_registry.map_imperatively(UserRole, user_role)

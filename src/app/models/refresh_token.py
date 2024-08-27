@@ -7,6 +7,6 @@ import datetime
 
 class RefreshToken(Base):
     __tablename__ = 'refresh_token'
-    token: Mapped[str] = mapped_column(Text, nullable=False)
-    expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    token: Mapped[str] = mapped_column(Text)
+    expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     UniqueConstraint('token')
