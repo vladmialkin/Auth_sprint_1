@@ -19,10 +19,6 @@ class Base(DeclarativeBase):
     def __tablename__(cls) -> str:  # noqa
         return cls.__name__.lower()
 
-    @declared_attr
-    def __table_args__(cls) -> dict:
-        return {'schema': 'auth'}
-
     def to_dict(self, excludes: list[str] = None) -> dict[str, Any]:
         db_obj_dict = self.__dict__.copy()
         del db_obj_dict["_sa_instance_state"]

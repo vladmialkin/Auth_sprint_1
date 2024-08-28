@@ -1,12 +1,14 @@
+import datetime
+
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.types import DateTime, String
+
+from app.common.constance import LARGE_STRING_LENGTH
 from app.models.base import Base
-from sqlalchemy.types import Text, DateTime
-import datetime
 
 
 class RefreshToken(Base):
-    __tablename__ = 'refresh_token'
-    token: Mapped[str] = mapped_column(Text)
+    token: Mapped[str] = mapped_column(String(LARGE_STRING_LENGTH))
     expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    UniqueConstraint('token')
+    UniqueConstraint("token")
