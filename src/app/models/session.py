@@ -9,6 +9,6 @@ from app.models.base import Base
 
 
 class Session(Base):
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("auth.user.id"))
-    refresh_token_id: Mapped[UUID] = mapped_column(ForeignKey(column="auth.refreshtoken.id", ondelete="CASCADE"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    refresh_token_id: Mapped[UUID] = mapped_column(ForeignKey(column="refreshtoken.id", ondelete="CASCADE"))
     user_agent: Mapped[str] = mapped_column(String(LARGE_STRING_LENGTH), unique=True)
