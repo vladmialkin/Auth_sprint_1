@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Boolean, DateTime, LargeBinary, String
@@ -15,6 +16,6 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_staff: Mapped[bool] = mapped_column(Boolean, default=False)
     is_super_user: Mapped[bool] = mapped_column(Boolean, default=False)
-    last_login: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     roles: Mapped[list[Role]] = relationship("Role", secondary="user_role", back_populates="users")
