@@ -1,5 +1,5 @@
-from sqlalchemy.types import DateTime
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
+from sqlalchemy.types import DateTime
 
 from app.models.base import Base, mapper_registry
 
