@@ -10,6 +10,7 @@ from app.models.role import Role
 
 
 class User(Base):
+    login: Mapped[str] = mapped_column(String(STRING_LENGTH), unique=True)
     email: Mapped[str] = mapped_column(String(STRING_LENGTH), unique=True)
     password: Mapped[str] = mapped_column(String(STRING_LENGTH))
     salt: Mapped[bytes] = mapped_column(LargeBinary(LARGE_STRING_LENGTH))

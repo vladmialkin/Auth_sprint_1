@@ -1,4 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint
+from sqlalchemy.types import DateTime
+from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
 
 from app.models.base import Base, mapper_registry
 
@@ -7,6 +8,7 @@ user_role = Table(
     Base.metadata,
     Column("user_id", ForeignKey("user.id"), primary_key=True),
     Column("role_id", ForeignKey("role.id"), primary_key=True),
+    Column("created_at", DateTime(timezone=False), server_default=func.now()),
     UniqueConstraint("user_id", "role_id"),
 )
 

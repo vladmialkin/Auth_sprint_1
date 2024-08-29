@@ -24,3 +24,5 @@ __pycache__/
 # db files
 /dbs
 .python-version
+
+.DS_Store
