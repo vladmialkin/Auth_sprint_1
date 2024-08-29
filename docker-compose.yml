@@ -10,7 +10,7 @@ services:
     volumes:
         - ./dbs/postgresql-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready -U app -d movies_database" ]
+      test: [ "CMD", "pg_isready -U app -d auth" ]
       interval: 10s
       timeout: 3s
       retries: 3
