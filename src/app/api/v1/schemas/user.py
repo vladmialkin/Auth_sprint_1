@@ -26,8 +26,13 @@ class GetHistorySchema(BaseSchema):
 
 
 class TokenSchema(BaseSchema):
-    access_token: str
-    refresh_token: str
+    access_token: str = None
+    refresh_token: str = None
+
+
+class TokenPayload(BaseSchema):
+    role: str = Field(description="Роль пользователя")
+
 
 
 
