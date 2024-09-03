@@ -11,7 +11,7 @@ from app.services.auth_service import AuthService, get_auth_service
 from ..schemas.user import TokenSchema, CreateUserSchema, ResponseSchema, ChangeLoginSchema, GetHistorySchema, TokenPayload
 from app.models.schema_validation.user_schema import CreateUserRequest, ChangeLoginPasswordRequest, LoginRequest
 from app.models.user import User
-
+from werkzeug.security import generate_password_hash
 
 router = APIRouter()
 
@@ -31,6 +31,7 @@ async def refresh(
         raise HTTPException(status_code=err.status_code, detail=err.message)
 
     current_user_id = await auth_service.auth.get_jwt_subject()
+
     new_tokens = await auth_service.refresh(current_user_id, request)
 
     if not new_tokens:
@@ -74,21 +75,39 @@ async def logout_user(request: Request, auth_service: AuthService = Depends(get_
     return ResponseSchema(code=HTTPStatus.OK, message='Пользователь вышел из аккаунта')
 
 
-@router.post('/register', response_model=CreateUserSchema)
-async def create_user(session: Session, data: CreateUserRequest, request: Request) -> CreateUserSchema:
-    print(1111, data)
-    headers = request.headers
-    print(2222, headers)
+@router.post('/register', response_model=TokenSchema)
+async def create_user(
+        user: CreateUserRequest,
+        request: Request,
+        auth_service: AuthService = Depends(get_auth_service)
+) -> TokenSchema:
+    tokens = await auth_service.register(user, request)
 
-    query = insert(User).values(**data.model_dump()).returning(User)
-    res = (await session.execute(query)).scalars().first()
-    await session.commit()
-    return res
+    if not tokens:
+        exp_msg = f"Пользователь с таким логином или паролем уже существует"
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=exp_msg)
+
+    return tokens
 
 
 @router.post('/change_login_password', response_model=Union[ResponseSchema, ChangeLoginSchema])
-async def change_login_password(data: ChangeLoginPasswordRequest) -> Union[ResponseSchema, ChangeLoginSchema]:
-    print(111, data)
+async def change_login_password(
+        request: Request,
+        auth_service: AuthService = Depends(get_auth_service)
+) -> Union[ResponseSchema, ChangeLoginSchema]:
+    try:
+        await auth_service.auth.jwt_required()
+    except MissingTokenError as err:
+        raise HTTPException(status_code=err.status_code, detail=err.message)
+    except JWTDecodeError as err:
+        raise HTTPException(status_code=err.status_code, detail=err.message)
+    except AccessTokenRequired as err:
+        raise HTTPException(status_code=err.status_code, detail=err.message)
+
+    user_id = await auth_service.auth.get_jwt_subject()
+
+    res = await auth_service.change_login_password()
+
     res = ChangeLoginSchema(login=data.new_login)
     return res
 

@@ -19,7 +19,7 @@ class UserInDB(BaseModel):
 
 
 class RefreshTokenInDB(BaseModel):
-    id: UUID
+    id: UUID = Field(description="Идентификатор пользователя")
     token: str
     expiration_date: datetime
     created_at: datetime
