@@ -16,7 +16,9 @@ class PostgreSQLSettings(Settings):
 
     @field_validator("DSN", mode="before")
     @classmethod
-    def assemble_dsn(cls, _: str | None, info: FieldValidationInfo) -> PostgresDsn:
+    def assemble_dsn(
+        cls, _: str | None, info: FieldValidationInfo
+    ) -> PostgresDsn:
         scheme = "postgresql+asyncpg"
         user = info.data["POSTGRES_USER"]
         password = info.data["POSTGRES_PASSWORD"].get_secret_value()

@@ -2,7 +2,11 @@ from collections.abc import AsyncGenerator
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, AsyncTransaction
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncSession,
+    AsyncTransaction,
+)
 
 from app.db.postgresql import async_engine, get_async_session
 from app.main import app
@@ -28,7 +32,9 @@ async def transaction(
 
 
 @pytest.fixture
-async def session(connection: AsyncConnection, transaction: AsyncTransaction) -> AsyncGenerator[AsyncSession, None]:
+async def session(
+    connection: AsyncConnection, transaction: AsyncTransaction
+) -> AsyncGenerator[AsyncSession, None]:
     async_session = AsyncSession(
         bind=connection,
         join_transaction_mode="create_savepoint",
@@ -43,7 +49,9 @@ async def session(connection: AsyncConnection, transaction: AsyncTransaction) ->
 
 @pytest.fixture
 async def client(session) -> AsyncGenerator[AsyncClient, None]:
-    async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async def override_get_async_session() -> (
+        AsyncGenerator[AsyncSession, None]
+    ):
         yield session
 
     app.dependency_overrides[get_async_session] = override_get_async_session
