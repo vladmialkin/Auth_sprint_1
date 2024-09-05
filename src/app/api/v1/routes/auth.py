@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.api.deps import Session, Token, UserAgent, CurrentUserId
+from app.api.deps import CurrentUserId, Session, Token, UserAgent
 from app.api.v1.schemas.jwt_token import (
     JWTTokenRetrieveSchema,
 )

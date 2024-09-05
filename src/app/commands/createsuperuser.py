@@ -13,7 +13,7 @@ from app.settings.postgresql import settings
 
 
 @click.command()
-@click.option("--login", prompt="Enter login", help="Login of the user")
+@click.option("--username", prompt="Enter username", help="Username")
 @click.option(
     "--password",
     prompt="Enter password",
@@ -21,11 +21,11 @@ from app.settings.postgresql import settings
     confirmation_prompt=True,
     help="Password of the user",
 )
-def createsuperuser(login, password) -> str:
-    asyncio.run(create_superuser_async(login, password))
+def createsuperuser(username, password) -> str:
+    asyncio.run(create_superuser_async(username, password))
 
 
-async def create_superuser_async(login, password):
+async def create_superuser_async(username, password):
     async_engine: AsyncEngine = create_async_engine(
         settings.DSN, echo=settings.LOG_QUERIES
     )
@@ -34,23 +34,23 @@ async def create_superuser_async(login, password):
     )
 
     async with async_session() as session:
-        is_exists = await user_repository.exists(session, login=login)
+        is_exists = await user_repository.exists(session, username=username)
 
         if is_exists:
-            print(f"Superuser {login} already exists.")
+            print(f"Superuser {username} already exists.")
             return
 
         await user_repository.create(
             session,
             {
-                "login": login,
+                "username": username,
                 "password": password,
                 "is_stuff": True,
                 "is_superuser": True,
             },
         )
 
-    print(f"Superuser {login} created.")
+    print(f"Superuser {username} created.")
 
 
 if __name__ == "__main__":

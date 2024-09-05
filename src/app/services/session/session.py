@@ -134,9 +134,7 @@ def create_refresh_token(
     return encoded_jwt, payload.exp
 
 
-async def validate_refresh_token(
-    db_session: AsyncSession, refresh_token: str
-) -> JWTTokenPayload:
+async def validate_refresh_token(refresh_token: str) -> JWTTokenPayload:
     try:
         payload = jwt.decode(
             refresh_token,
@@ -176,7 +174,7 @@ async def refresh_access_token(
     if not stored_refresh_token:
         raise NotAuthenticatedError
 
-    payload = await validate_refresh_token(db_session, refresh_token)
+    payload = await validate_refresh_token(refresh_token)
 
     access_token, *_ = create_access_token(
         payload.username, payload.user_id, payload.user_agent

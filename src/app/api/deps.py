@@ -32,6 +32,8 @@ async def get_current_user_id(access_token: Token) -> UUID:
     if not username or not user_id:
         raise NotAuthenticatedError
 
+    # TODO: проверить, что access_token не находится в черном списке в редисе
+
     return user_id
 
 

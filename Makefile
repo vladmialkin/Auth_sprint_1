@@ -1,4 +1,4 @@
-.PHONY: up down local lint migrations migrate
+.PHONY: up down local lint migrations migrate superuser
 
 up:
 	docker compose up --build
@@ -18,6 +18,9 @@ migrations:
 
 migrate:
 	cd src; alembic upgrade head
+
+superuser:
+	cd src/app/commands; python createsuperuser.py
 
 test:
 	docker compose -f test-docker-compose.yml up -d
