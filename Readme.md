@@ -22,6 +22,21 @@ pip install -r ./src/requirements/dev.txt
 cp ./src/.example.env ./src/.env
 ```
 * change variable values as needed
+### Migrations
+* generate new migration
+```bash
+make migrations m="<migration_name>"
+```
+* apply migrations
+```bash
+make migrate
+```
+### Testing
+* run tests
+```bash
+make test
+```
+
 
 ### Deploy
 * use shortcut script

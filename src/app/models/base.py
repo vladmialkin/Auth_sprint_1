@@ -1,18 +1,30 @@
 from datetime import datetime
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from sqlalchemy import DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, registry
+from sqlalchemy import DateTime, func, text
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    declared_attr,
+    mapped_column,
+    registry,
+)
 
 mapper_registry = registry()
 
 
 class Base(DeclarativeBase):
-    id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), server_default=func.now())
+    id: Mapped[UUID] = mapped_column(
+        server_default=text("gen_random_uuid()"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=False), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=False), server_default=func.now(), onupdate=func.now()
+        DateTime(timezone=False),
+        server_default=func.now(),
+        onupdate=func.now(),
     )
 
     @declared_attr.directive
