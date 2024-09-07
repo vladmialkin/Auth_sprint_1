@@ -3,20 +3,20 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import Session
-
 from app.api.v1.schemas.role import (
     RoleCreateSchema,
+    RoleRetrieveSchema,
     RoleUpdateSchema,
-    RoleRetrieveSchema
 )
 from app.repository.role import role_repository
-
 
 router = APIRouter()
 
 
 @router.post("/")
-async def create_role(session: Session, data: RoleCreateSchema) -> RoleRetrieveSchema:
+async def create_role(
+    session: Session, data: RoleCreateSchema
+) -> RoleRetrieveSchema:
     """Создание роли."""
     is_exist = await role_repository.exists(session, name=data.name)
 
@@ -37,8 +37,7 @@ async def delete_role(session: Session, role_id: UUID) -> None:
 
     if not is_exist:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Role not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
 
     role = await role_repository.get(session, id=role_id)
@@ -47,15 +46,16 @@ async def delete_role(session: Session, role_id: UUID) -> None:
 
 
 @router.put("/{role_id}")
-async def update_role(session: Session, data: RoleUpdateSchema, role_id: UUID) -> RoleRetrieveSchema:
+async def update_role(
+    session: Session, data: RoleUpdateSchema, role_id: UUID
+) -> RoleRetrieveSchema:
     """Изменение роли."""
 
     is_exist = await role_repository.exists(session, id=role_id)
 
     if not is_exist:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Role not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
 
     role = await role_repository.get(session, id=role_id)
@@ -69,3 +69,10 @@ async def get_roles(session: Session) -> list[RoleRetrieveSchema]:
     """Просмотр всех ролей."""
 
     return await role_repository.filter(session)
+
+
+@router.get("/{role_id}")
+async def get_role_info(session: Session, role_id: UUID) -> RoleRetrieveSchema:
+    """Получение информации о роли."""
+
+    return await role_repository.get(session, id=role_id)
