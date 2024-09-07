@@ -8,12 +8,13 @@ class RoleBaseSchema(Base):
     name: str
 
 
-class RolesSchema(RoleBaseSchema):
-    id: UUID
-    created_at: datetime
-
-
 class RoleCreateSchema(RoleBaseSchema): ...
 
 
 class RoleUpdateSchema(RoleBaseSchema): ...
+
+
+class RoleRetrieveSchema(RoleBaseSchema):
+    id: UUID
+    created_at: datetime
+    updated_at: datetime

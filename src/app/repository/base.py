@@ -58,7 +58,11 @@ class SQLAlchemyRepository[T]:
     async def delete(
             self,
             session: AsyncSession,
-            obj: T
+            obj: T,
+            commit: bool = True
     ):
         await session.delete(obj)
-        await session.commit()
+        await session.flush()
+
+        if commit:
+            await session.commit()

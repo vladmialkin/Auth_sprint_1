@@ -1,12 +1,13 @@
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.api.deps import Session
 
-from app.services import role_service
 from app.api.v1.schemas.role import (
     RoleCreateSchema,
     RoleUpdateSchema,
-    RolesSchema
+    RoleRetrieveSchema
 )
 from app.repository.role import role_repository
 
@@ -14,53 +15,57 @@ from app.repository.role import role_repository
 router = APIRouter()
 
 
-@router.post("/create")
-async def create_role(session: Session, data: RoleCreateSchema) -> RoleUpdateSchema:
+@router.post("/")
+async def create_role(session: Session, data: RoleCreateSchema) -> RoleRetrieveSchema:
     """Создание роли."""
+    is_exist = await role_repository.exists(session, name=data.name)
 
-    role = await role_repository.create(session, data={"name": data.name})
-
-    if role is None:
+    if is_exist:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Role already exists",
         )
 
-    return role
+    return await role_repository.create(session, data={"name": data.name})
 
 
-@router.delete("/delete/{role_id}")
-async def delete_role(session: Session, role_id: str):
+@router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_role(session: Session, role_id: UUID) -> None:
     """Удаление роли."""
 
-    result = await role_service.delete_role(session, role_id)
+    is_exist = await role_repository.exists(session, id=role_id)
 
-    if not result:
+    if not is_exist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Role not found"
         )
-    return status.HTTP_200_OK
+
+    role = await role_repository.get(session, id=role_id)
+
+    await role_repository.delete(session, role)
 
 
-@router.put("/update/{role_id}")
-async def update_role(session: Session, data: RoleUpdateSchema, role_id: str) -> RoleUpdateSchema:
+@router.put("/{role_id}")
+async def update_role(session: Session, data: RoleUpdateSchema, role_id: UUID) -> RoleRetrieveSchema:
     """Изменение роли."""
-    updated_role = await role_service.update_role(session, role_id, data.model_dump())
 
-    if not updated_role:
+    is_exist = await role_repository.exists(session, id=role_id)
+
+    if not is_exist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Role not found"
         )
 
-    return updated_role
+    role = await role_repository.get(session, id=role_id)
+    new_role = await role_repository.update(session, role, {"name": data.name})
+
+    return new_role
 
 
-@router.get("/roles")
-async def get_roles(session: Session) -> list[RolesSchema]:
+@router.get("/")
+async def get_roles(session: Session) -> list[RoleRetrieveSchema]:
     """Просмотр всех ролей."""
-    roles = await role_repository.get_all(session)
-    roles_list = [RolesSchema(**role.to_dict()) for role in roles]
 
-    return roles_list
+    return await role_repository.filter(session)
