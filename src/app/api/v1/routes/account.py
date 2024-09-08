@@ -33,14 +33,12 @@ async def create_role(
 async def delete_role(session: Session, role_id: UUID) -> None:
     """Удаление роли."""
 
-    is_exist = await role_repository.exists(session, id=role_id)
+    role = await role_repository.get(session, id=role_id)
 
-    if not is_exist:
+    if role is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
-
-    role = await role_repository.get(session, id=role_id)
 
     await role_repository.delete(session, role)
 
@@ -51,14 +49,13 @@ async def update_role(
 ) -> RoleRetrieveSchema:
     """Изменение роли."""
 
-    is_exist = await role_repository.exists(session, id=role_id)
+    role = await role_repository.get(session, id=role_id)
 
-    if not is_exist:
+    if role is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
         )
 
-    role = await role_repository.get(session, id=role_id)
     new_role = await role_repository.update(session, role, {"name": data.name})
 
     return new_role
@@ -75,4 +72,11 @@ async def get_roles(session: Session) -> list[RoleRetrieveSchema]:
 async def get_role_info(session: Session, role_id: UUID) -> RoleRetrieveSchema:
     """Получение информации о роли."""
 
-    return await role_repository.get(session, id=role_id)
+    role = await role_repository.get(session, id=role_id)
+
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
+
+    return role
