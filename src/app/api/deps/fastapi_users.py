@@ -77,7 +77,7 @@ current_active_user = fastapi_users.current_user(active=True)
 
 
 CurrentUserToken = Annotated[tuple, Depends(current_active_user_token)]
-CurrentUser = Annotated[tuple, Depends(current_active_user)]
+CurrentUser = Annotated[User, Depends(current_active_user)]
 
 
 async def get_current_active_user_by_refresh_token(

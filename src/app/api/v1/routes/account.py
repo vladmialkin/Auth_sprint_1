@@ -1,5 +1,10 @@
 from fastapi import APIRouter
 
+from app.api.deps.roles import ForAdminOnly
+
 router = APIRouter()
 
-# TODO: тут описать апи методы для ролей
+
+@router.get("/protected_data")
+async def protected_data(_: ForAdminOnly):
+    return {"data": 42}

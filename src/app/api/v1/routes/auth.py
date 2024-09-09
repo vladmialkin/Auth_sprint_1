@@ -14,6 +14,7 @@ from app.api.deps.fastapi_users import (
 )
 from app.api.deps.user_agent import UserAgent
 from app.api.v1.schemas.user import UserCreateSchema, UserRetrieveSchema
+from app.users.schemas import BearerResponseSchema, RefreshResponseSchema
 
 router = APIRouter()
 
@@ -26,7 +27,7 @@ async def login(
     refresh_strategy: RefreshStrategy,
     session: Session,
     credentials: OAuth2Credentials,
-):
+) -> BearerResponseSchema:
     user = await user_manager.authenticate(credentials)
 
     if user is None or not user.is_active:
@@ -63,7 +64,7 @@ async def refresh(
     access_strategy: AccessStrategy,
     refresh_strategy: RefreshStrategy,
     session: Session,
-):
+) -> RefreshResponseSchema:
     return await authentication_backend.refresh(
         access_strategy, refresh_strategy, user, session, user_agent
     )
