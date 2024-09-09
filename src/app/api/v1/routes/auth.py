@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from fastapi_users.router.common import ErrorCode
 
 from app.api.deps.fastapi_users import (
-    CurrentUser,
+    AccessStrategy,
+    CurrentUserByRefreshToken,
     CurrentUserToken,
     OAuth2Credentials,
-    Strategy,
+    RefreshStrategy,
+    Session,
     UserManager,
     authentication_backend,
     fastapi_users,
@@ -20,7 +22,9 @@ router = APIRouter()
 async def login(
     user_agent: UserAgent,
     user_manager: UserManager,
-    strategy: Strategy,
+    access_strategy: AccessStrategy,
+    refresh_strategy: RefreshStrategy,
+    session: Session,
     credentials: OAuth2Credentials,
 ):
     user = await user_manager.authenticate(credentials)
@@ -32,7 +36,7 @@ async def login(
         )
 
     return await authentication_backend.login(
-        strategy, user, user_manager, user_agent
+        access_strategy, refresh_strategy, user, session, user_agent
     )
 
 
@@ -40,26 +44,29 @@ async def login(
 async def logout(
     user_token: CurrentUserToken,
     user_agent: UserAgent,
-    strategy: Strategy,
-    user_manager: UserManager,
-):
-    user, token = user_token
+    strategy: RefreshStrategy,
+    session: Session,
+) -> Response:
+    user, *_ = user_token
     return await authentication_backend.logout(
-        strategy, user, user_manager, token, user_agent
+        strategy,
+        session,
+        user,
+        user_agent,
     )
 
 
 @router.post("/refresh")
 async def refresh(
-    startegy: Strategy,
-    refresh_token: ...,
-    user_manager: UserManager,
+    user: CurrentUserByRefreshToken,
     user_agent: UserAgent,
+    access_strategy: AccessStrategy,
+    refresh_strategy: RefreshStrategy,
+    session: Session,
 ):
-    # return await authentication_backend.refresh(
-    #     startegy, user, user_manager, user_agent
-    # )
-    return {}
+    return await authentication_backend.refresh(
+        access_strategy, refresh_strategy, user, session, user_agent
+    )
 
 
 router.include_router(
