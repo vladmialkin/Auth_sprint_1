@@ -1,88 +1,67 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi_users.router.common import ErrorCode
 
-from app.api.deps import CurrentUserId, Session, Token, UserAgent
-from app.api.v1.schemas.jwt_token import (
-    JWTTokenRetrieveSchema,
+from app.api.deps.fastapi_users import (
+    CurrentUser,
+    CurrentUserToken,
+    OAuth2Credentials,
+    Strategy,
+    UserManager,
+    authentication_backend,
+    fastapi_users,
 )
-from app.api.v1.schemas.user import (
-    UserLoginSchema,
-    UserRegiserSchema,
-    UserRetrieveSchema,
-)
-from app.repository.user import user_repository
-from app.services.session import (
-    create_session,
-    refresh_access_token,
-)
-from app.services.session.exceptions import (
-    NotAuthenticatedError,
-    UserNotFoundError,
-)
+from app.api.deps.user_agent import UserAgent
+from app.api.v1.schemas.user import UserCreateSchema, UserRetrieveSchema
 
 router = APIRouter()
 
 
-@router.post("/register")
-async def register(
-    session: Session, data: UserRegiserSchema
-) -> UserRetrieveSchema:
-    """Регистрация нового пользователя."""
-
-    is_exists = await user_repository.exists(session, username=data.username)
-
-    if is_exists:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User with this login already exists",
-        )
-
-    return await user_repository.create(session, data.model_dump())
-
-
 @router.post("/login")
 async def login(
-    session: Session, data: UserLoginSchema, user_agent: UserAgent = None
-) -> JWTTokenRetrieveSchema:
-    """Авторизация пользователя."""
+    user_agent: UserAgent,
+    user_manager: UserManager,
+    strategy: Strategy,
+    credentials: OAuth2Credentials,
+):
+    user = await user_manager.authenticate(credentials)
 
-    try:
-        access_token, refresh_token = await create_session(
-            session, data.username, data.password, user_agent
+    if user is None or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
         )
-    except UserNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Incorrect username",
-        ) from e
-    except NotAuthenticatedError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-        ) from e
 
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return await authentication_backend.login(
+        strategy, user, user_manager, user_agent
+    )
+
+
+@router.post("/logout")
+async def logout(
+    user_token: CurrentUserToken,
+    user_agent: UserAgent,
+    strategy: Strategy,
+    user_manager: UserManager,
+):
+    user, token = user_token
+    return await authentication_backend.logout(
+        strategy, user, user_manager, token, user_agent
+    )
 
 
 @router.post("/refresh")
 async def refresh(
-    session: Session,
-    refresh_token: Token,
-) -> JWTTokenRetrieveSchema:
-    """Обновление токена."""
-
-    try:
-        access_token, refresh_token = await refresh_access_token(
-            session, refresh_token
-        )
-    except NotAuthenticatedError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token",
-        ) from e
-
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    startegy: Strategy,
+    refresh_token: ...,
+    user_manager: UserManager,
+    user_agent: UserAgent,
+):
+    # return await authentication_backend.refresh(
+    #     startegy, user, user_manager, user_agent
+    # )
+    return {}
 
 
-@router.get("/some_protected_data")
-async def get_protected_data(session: Session, user_id: CurrentUserId) -> dict:
-    return {"msg": "protected_data"}
+router.include_router(
+    fastapi_users.get_register_router(UserRetrieveSchema, UserCreateSchema),
+)

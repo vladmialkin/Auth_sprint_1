@@ -17,8 +17,17 @@ class SQLAlchemyRepository[T]:
 
         return (await session.execute(query)).scalars().first() is not None
 
-    async def get(self, session: AsyncSession, **attrs) -> T | None:
+    async def get(
+        self, session: AsyncSession, options: Any | None = None, **attrs
+    ) -> T | None:
         query = select(self._model).filter_by(**attrs)
+
+        if options is not None:
+            if isinstance(options, list):
+                for option in options:
+                    query = query.options(option)
+            else:
+                query = query.options(options)
 
         return (await session.execute(query)).scalars().first()
 
@@ -54,3 +63,12 @@ class SQLAlchemyRepository[T]:
             await session.commit()
 
         return obj
+
+    async def delete(
+        self, session: AsyncSession, obj: T, commit: bool = True
+    ) -> None:
+        await session.delete(obj)
+        await session.flush()
+
+        if commit:
+            await session.commit()

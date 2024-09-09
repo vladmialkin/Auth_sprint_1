@@ -1,24 +1,21 @@
 from datetime import datetime
 from uuid import UUID as PY_UUID
 
+from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
     String,
     Table,
-    func,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, mapper_registry
 from app.models.constance import (
-    EMAIL_STR_LEN,
     NAME_STR_LEN,
-    PASSWORD_STR_LEN,
     REFRESH_TOKEN_STR_LEN,
-    SALT_STR_LEN,
     USER_AGENT_STR_LEN,
 )
 
@@ -37,20 +34,7 @@ class UserRole:
 mapper_registry.map_imperatively(UserRole, user_role)
 
 
-class User(Base):
-    username: Mapped[str] = mapped_column(String(NAME_STR_LEN), unique=True)
-    password: Mapped[str] = mapped_column(String(PASSWORD_STR_LEN))
-    email: Mapped[str | None] = mapped_column(
-        String(EMAIL_STR_LEN), unique=True
-    )
-    salt: Mapped[str] = mapped_column(String(SALT_STR_LEN))
-    is_active: Mapped[bool] = mapped_column(default=True)
-    is_stuff: Mapped[bool] = mapped_column(default=False)
-    is_superuser: Mapped[bool] = mapped_column(default=False)
-    last_login: Mapped[datetime] = mapped_column(
-        DateTime(timezone=False), server_default=func.now()
-    )
-
+class User(SQLAlchemyBaseUserTableUUID, Base):
     roles: Mapped[list["Role"]] = relationship(
         "Role", secondary=user_role, back_populates="users"
     )
@@ -58,22 +42,33 @@ class User(Base):
         "Session", back_populates="user"
     )
 
+    def __str__(self) -> str:
+        return f"User ({self.id}) {self.email}"
+
 
 class Role(Base):
-    name: Mapped[UUID] = mapped_column(String(NAME_STR_LEN))
+    name: Mapped[UUID] = mapped_column(String(NAME_STR_LEN), unique=True)
 
     users: Mapped[list[User]] = relationship(
         "User", secondary=user_role, back_populates="roles"
     )
 
+    def __str__(self) -> str:
+        return f"Role ({self.id}) {self.name}"
+
 
 class RefreshToken(Base):
-    token: Mapped[str] = mapped_column(String(REFRESH_TOKEN_STR_LEN))
+    token: Mapped[str] = mapped_column(
+        String(REFRESH_TOKEN_STR_LEN), unique=True
+    )
     expiration_date: Mapped[datetime] = mapped_column(DateTime(timezone=False))
 
     session: Mapped["Session"] = relationship(
         "Session", back_populates="refresh_token"
     )
+
+    def __str__(self) -> str:
+        return f"RefreshToken ({self.id}) {self.token[:6]}"
 
 
 class Session(Base):
@@ -87,3 +82,6 @@ class Session(Base):
     refresh_token: Mapped[RefreshToken] = relationship(
         "RefreshToken", back_populates="session"
     )
+
+    def __str__(self) -> str:
+        return f"Session ({self.id}) of user {self.user_id}"
