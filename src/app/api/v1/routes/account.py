@@ -7,8 +7,11 @@ from app.api.v1.schemas.role import (
     RoleCreateSchema,
     RoleRetrieveSchema,
     RoleUpdateSchema,
+    RoleSetRevokeSchema
 )
 from app.repository.role import role_repository
+from app.repository.user_role import user_role_repository
+from app.repository.user import user_repository
 from app.api.deps.roles import ForAdminOnly
 
 
@@ -98,3 +101,64 @@ async def get_role_info(
         )
 
     return role
+
+
+@router.post('/set_role', status_code=status.HTTP_200_OK)
+async def set_role(
+        session: Session,
+        data: RoleSetRevokeSchema,
+        _: ForAdminOnly
+) -> None:
+    """Назначение роли пользователю."""
+
+    role = await role_repository.get(session, name=data.name)
+
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
+
+    user = await user_repository.exists(session, id=data.user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    payload = {
+        "user_id": data.user_id,
+        "role_id": role.id
+    }
+
+    await user_role_repository.create(session, payload)
+
+
+@router.post('/revoke_role', status_code=status.HTTP_200_OK)
+async def revoke_role(
+        session: Session,
+        data: RoleSetRevokeSchema,
+        _: ForAdminOnly
+) -> None:
+    """Отзыв роли у пользователя."""
+
+    role = await role_repository.get(session, name=data.name)
+
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
+
+    user = await user_repository.exists(session, id=data.user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    payload = {
+        "user_id": data.user_id,
+        "role_id": role.id
+    }
+
+    user_role = await user_role_repository.get(session, **payload)
+    await user_repository.delete(session, user_role)
