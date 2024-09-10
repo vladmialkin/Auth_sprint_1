@@ -17,13 +17,31 @@ class SQLAlchemyRepository[T]:
 
         return (await session.execute(query)).scalars().first() is not None
 
-    async def get(self, session: AsyncSession, **attrs) -> T | None:
+    async def get(
+        self, session: AsyncSession, options: Any | None = None, **attrs
+    ) -> T | None:
         query = select(self._model).filter_by(**attrs)
+
+        if options is not None:
+            if isinstance(options, list):
+                for option in options:
+                    query = query.options(option)
+            else:
+                query = query.options(options)
 
         return (await session.execute(query)).scalars().first()
 
-    async def filter(self, session: AsyncSession, **attrs) -> list[T]:
+    async def filter(
+        self, session: AsyncSession, options: Any | None = None, **attrs
+    ) -> list[T]:
         query = select(self._model).filter_by(**attrs)
+
+        if options is not None:
+            if isinstance(options, list):
+                for option in options:
+                    query = query.options(option)
+            else:
+                query = query.options(options)
 
         return (await session.execute(query)).scalars().all()
 

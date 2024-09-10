@@ -10,6 +10,8 @@ from app.api.v1.schemas.role import (
 )
 from app.repository.role import role_repository
 
+from app.api.deps.roles import ForAdminOnly
+
 router = APIRouter()
 
 

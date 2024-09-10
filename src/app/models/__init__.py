@@ -3,4 +3,4 @@ from app.models.models import RefreshToken, Role, Session, User, UserRole
 
 # TODO: Здесь необходимо импортировать все модели, чтобы прокинуть их алембику
 
-__all__ = ["Base", "User", "Role", "UserRole", "RefreshToken", "Session"]
+__all__ = ["Base", "User", "Role", "RefreshToken", "Session", "UserRole"]
