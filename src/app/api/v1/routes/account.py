@@ -2,22 +2,24 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.api.deps import Session
+from app.api.deps.session import Session
 from app.api.v1.schemas.role import (
     RoleCreateSchema,
     RoleRetrieveSchema,
     RoleUpdateSchema,
 )
 from app.repository.role import role_repository
-
 from app.api.deps.roles import ForAdminOnly
+
 
 router = APIRouter()
 
 
 @router.post("/")
 async def create_role(
-    session: Session, data: RoleCreateSchema
+    session: Session,
+    data: RoleCreateSchema,
+    _: ForAdminOnly
 ) -> RoleRetrieveSchema:
     """Создание роли."""
     is_exist = await role_repository.exists(session, name=data.name)
@@ -32,7 +34,11 @@ async def create_role(
 
 
 @router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_role(session: Session, role_id: UUID) -> None:
+async def delete_role(
+    session: Session,
+    role_id: UUID,
+    _: ForAdminOnly
+) -> None:
     """Удаление роли."""
 
     role = await role_repository.get(session, id=role_id)
@@ -47,7 +53,10 @@ async def delete_role(session: Session, role_id: UUID) -> None:
 
 @router.put("/{role_id}")
 async def update_role(
-    session: Session, data: RoleUpdateSchema, role_id: UUID
+    session: Session,
+    data: RoleUpdateSchema,
+    role_id: UUID,
+    _: ForAdminOnly
 ) -> RoleRetrieveSchema:
     """Изменение роли."""
 
@@ -64,14 +73,21 @@ async def update_role(
 
 
 @router.get("/")
-async def get_roles(session: Session) -> list[RoleRetrieveSchema]:
+async def get_roles(
+    session: Session,
+    _: ForAdminOnly,
+) -> list[RoleRetrieveSchema]:
     """Просмотр всех ролей."""
 
     return await role_repository.filter(session)
 
 
 @router.get("/{role_id}")
-async def get_role_info(session: Session, role_id: UUID) -> RoleRetrieveSchema:
+async def get_role_info(
+    session: Session,
+    role_id: UUID,
+    _: ForAdminOnly
+) -> RoleRetrieveSchema:
     """Получение информации о роли."""
 
     role = await role_repository.get(session, id=role_id)
