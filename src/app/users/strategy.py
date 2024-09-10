@@ -7,6 +7,7 @@ from jwt import PyJWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from app.db.redis import get_redis
 from app.models import Session, User
 from app.repository.refresh_token import refresh_token_repository
 from app.repository.session import session_repository
@@ -192,12 +193,20 @@ class AccessJWTStrategy(JWTStrategy):
         except exceptions.InvalidID:
             return None
 
-        # TODO: Проверить что токен не в блэклисте
+        redis_conn = await get_redis()
+        if await redis_conn.exists(f"blacklisted_access_token:{token}"):
+            return None
 
         return await user_manager.get(parsed_id)
 
-    async def destroy_token(
-        self, token: str, user: User, db_session: AsyncSession
-    ) -> None:
-        # TODO: добавить access token в блэклист
-        return
+    async def destroy_token(self, token: str) -> None:
+        token_data = decode_jwt(
+            token,
+            self.decode_key,
+            self.token_audience,
+            algorithms=[self.algorithm],
+        )
+        ttl = token_data.get("exp") - int(datetime.now(UTC).timestamp())
+
+        redis_conn = await get_redis()
+        await redis_conn.set(f"blacklisted_access_token:{token}", "", ex=ttl)

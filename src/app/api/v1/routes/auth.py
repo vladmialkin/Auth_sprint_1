@@ -45,13 +45,16 @@ async def login(
 async def logout(
     user_token: CurrentUserToken,
     user_agent: UserAgent,
-    strategy: RefreshStrategy,
+    access_strategy: AccessStrategy,
+    refresh_strategy: RefreshStrategy,
     session: Session,
 ) -> Response:
-    user, *_ = user_token
+    user, token = user_token
     return await authentication_backend.logout(
-        strategy,
+        access_strategy,
+        refresh_strategy,
         session,
+        token,
         user,
         user_agent,
     )

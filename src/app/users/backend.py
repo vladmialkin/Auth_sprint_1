@@ -70,13 +70,15 @@ class RefreshableAuthenticationBackend(AuthenticationBackend):
 
     async def logout(
         self,
+        access_strategy: AccessJWTStrategy,
         refresh_strategy: RefreshJWTStrategy,
         db_session: AsyncSession,
+        token: str,
         user: User,
         user_agent: str | None = None,
     ) -> Response:
-        # TODO: добавить токен в blacklist в Redis
         await refresh_strategy.destroy_token(db_session, user, user_agent)
+        await access_strategy.destroy_token(token)
 
         try:
             response = await self.transport.get_logout_response()
