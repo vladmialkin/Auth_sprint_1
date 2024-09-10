@@ -21,3 +21,4 @@ starlette==0.38.2
 typing_extensions==4.12.2
 uvicorn==0.30.6
 passlib==1.7.4
+pyjwt==2.9.0
