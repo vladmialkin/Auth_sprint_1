@@ -1,6 +1,7 @@
 import asyncio
 
 import click
+from fastapi_users.password import PasswordHelper
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -13,7 +14,7 @@ from app.settings.postgresql import settings
 
 
 @click.command()
-@click.option("--username", prompt="Enter username", help="Username")
+@click.option("--email", prompt="Enter email", help="Email of the user")
 @click.option(
     "--password",
     prompt="Enter password",
@@ -21,11 +22,11 @@ from app.settings.postgresql import settings
     confirmation_prompt=True,
     help="Password of the user",
 )
-def createsuperuser(username, password) -> str:
-    asyncio.run(create_superuser_async(username, password))
+def createsuperuser(email, password) -> str:
+    asyncio.run(create_superuser_async(email, password))
 
 
-async def create_superuser_async(username, password):
+async def create_superuser_async(email, password):
     async_engine: AsyncEngine = create_async_engine(
         settings.DSN, echo=settings.LOG_QUERIES
     )
@@ -34,23 +35,23 @@ async def create_superuser_async(username, password):
     )
 
     async with async_session() as session:
-        is_exists = await user_repository.exists(session, username=username)
+        is_exists = await user_repository.exists(session, email=email)
 
         if is_exists:
-            print(f"Superuser {username} already exists.")
+            print(f"Superuser {email} already exists.")
             return
 
         await user_repository.create(
             session,
             {
-                "username": username,
-                "password": password,
-                "is_stuff": True,
+                "email": email,
+                "hashed_password": PasswordHelper().hash(password),
+                "is_active": True,
                 "is_superuser": True,
             },
         )
 
-    print(f"Superuser {username} created.")
+    print(f"Superuser {email} created.")
 
 
 if __name__ == "__main__":

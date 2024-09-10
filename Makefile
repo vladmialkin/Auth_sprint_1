@@ -20,9 +20,9 @@ migrate:
 	cd src; alembic upgrade head
 
 superuser:
-	cd src/app/commands; python createsuperuser.py
+	python ./src/app/commands/createsuperuser.py
 
-test:
+tests:
 	docker compose -f test-docker-compose.yml up -d
 	docker build -t test-auth:latest --file ./src/TestDockerfile ./src
 	docker run --network test-auth --env-file ./src/.test.env test-auth:latest
