@@ -1,7 +1,6 @@
 from app.models.base import Base
-from app.models.index import Index
+from app.models.models import RefreshToken, Role, Session, User, UserRole
 
 # TODO: Здесь необходимо импортировать все модели, чтобы прокинуть их алембику
 
-
-__all__ = ["Base", "Index"]
+__all__ = ["Base", "User", "Role", "RefreshToken", "Session", "UserRole"]

@@ -1,6 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.v1.routes.index import router as index_router
+from app.api.v1.routes.auth import router as auth_router
+from app.api.v1.routes.roles import router as roles_router
+from app.api.v1.routes.user_role import router as user_role_router
 
 router = APIRouter(prefix="/api/v1")
-router.include_router(prefix="/index", router=index_router, tags=["index"])
+router.include_router(auth_router, prefix="/auth/jwt", tags=["Авторизация"])
+router.include_router(roles_router, prefix="/roles", tags=["Роли"])
+router.include_router(
+    user_role_router, prefix="/user_role", tags=["Роли пользователей"]
+)

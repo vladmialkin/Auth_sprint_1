@@ -19,7 +19,9 @@ async def lifespan(_: FastAPI):
         postgresql_settings.DSN,
         echo=postgresql_settings.LOG_QUERIES,
     )
-    postgresql.async_session = async_sessionmaker(postgresql.async_engine, expire_on_commit=False)
+    postgresql.async_session = async_sessionmaker(
+        postgresql.async_engine, expire_on_commit=False
+    )
     yield
     await redis.redis_conn.close()
     await postgresql.async_engine.dispose()
