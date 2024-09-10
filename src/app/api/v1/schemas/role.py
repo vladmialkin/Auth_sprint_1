@@ -14,10 +14,6 @@ class RoleCreateSchema(RoleBaseSchema): ...
 class RoleUpdateSchema(RoleBaseSchema): ...
 
 
-class RoleSetRevokeSchema(RoleBaseSchema):
-    user_id: UUID
-
-
 class RoleRetrieveSchema(RoleBaseSchema):
     id: UUID
     created_at: datetime

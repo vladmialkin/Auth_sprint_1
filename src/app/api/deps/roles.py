@@ -20,7 +20,10 @@ class RoleChecker:
         )
         role_names = {role.name for role in user.roles}
 
-        if not role_names.intersection(self._allowed_roles):
+        if (
+            not role_names.intersection(self._allowed_roles)
+            and not user.is_superuser
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not enough permissions",

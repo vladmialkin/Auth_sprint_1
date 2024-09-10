@@ -5,7 +5,8 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession,
-    AsyncTransaction, create_async_engine,
+    AsyncTransaction,
+    create_async_engine,
 )
 
 from app.db import postgresql
@@ -14,9 +15,9 @@ from app.main import app
 from app.settings.postgresql import settings
 
 postgresql.async_engine = create_async_engine(
-        settings.DSN,
-        echo=settings.LOG_QUERIES,
-    )
+    settings.DSN,
+    echo=settings.LOG_QUERIES,
+)
 
 
 @pytest.fixture(scope="session")
@@ -63,6 +64,3 @@ async def client(session) -> AsyncGenerator[AsyncClient, None]:
 
     app.dependency_overrides[get_async_session] = override_get_async_session
     return AsyncClient(app=app, base_url="http://localhost:8010")
-
-
-

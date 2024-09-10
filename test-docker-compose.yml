@@ -2,7 +2,7 @@ name: test-auth
 services:
   test-auth-postgres:
     image: postgres:16.4
-    container_name: postgres
+    container_name: test-auth-postgres
     restart: always
     env_file:
         - ./src/.test.env
@@ -18,7 +18,7 @@ services:
   
   test-auth-redis:
     image: redis:7.4.0
-    container_name: redis
+    container_name: test-auth-redis
     restart: always
     env_file:
         - ./src/.test.env
