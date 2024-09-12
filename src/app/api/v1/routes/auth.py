@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, HTTPException, Response, status
 from fastapi_users.router.common import ErrorCode
 
