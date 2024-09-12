@@ -1,6 +1,7 @@
 from typing import Any, TypeVar
 
 from sqlalchemy import select
+from sqlalchemy import desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.base import Base
@@ -42,6 +43,13 @@ class SQLAlchemyRepository[T]:
                     query = query.options(option)
             else:
                 query = query.options(options)
+
+        return (await session.execute(query)).scalars().all()
+
+    async def filter_with_orderby(
+        self, session: AsyncSession, column: str, order=asc, **attrs
+    ) -> list[T]:
+        query = select(self._model).filter_by(**attrs).order_by(order(getattr(self._model, column)))
 
         return (await session.execute(query)).scalars().all()
 
