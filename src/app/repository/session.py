@@ -1,4 +1,4 @@
-from sqlalchemy import desc
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Session
@@ -6,8 +6,10 @@ from app.repository.base import SQLAlchemyRepository
 
 
 class SessionRepository(SQLAlchemyRepository[Session]):
-    async def get_history(self, db_session: AsyncSession, **attrs) -> list[Session]:
-        return await self.filter_with_orderby(db_session, "created_at", desc, **attrs)
+    @staticmethod
+    async def get_history(session: AsyncSession) -> list[Session]:
+        query = select(Session).order_by(Session.created_at.desc())
+        return (await session.execute(query)).scalars().all()
 
 
 session_repository = SessionRepository(Session)

@@ -2,8 +2,8 @@ from fastapi import APIRouter
 
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.roles import router as roles_router
-from app.api.v1.routes.user_role import router as user_role_router
 from app.api.v1.routes.session import router as session_router
+from app.api.v1.routes.user_role import router as user_role_router
 
 router = APIRouter(prefix="/api/v1")
 

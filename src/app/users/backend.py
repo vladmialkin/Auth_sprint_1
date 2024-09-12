@@ -1,4 +1,4 @@
-from fastapi import Response, status, HTTPException
+from fastapi import Response, status
 from fastapi_users import models
 from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.authentication.strategy import JWTStrategy
@@ -9,12 +9,9 @@ from fastapi_users.authentication.transport import (
 from fastapi_users.types import DependencyCallable
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.schemas.session import UserHistoryRetrieveSchema
-from app.models import User, Session
-from app.users.manager import UserManager
+from app.models import User
 from app.users.schemas import BearerResponseSchema, RefreshResponseSchema
 from app.users.strategy import AccessJWTStrategy, RefreshJWTStrategy
-from app.repository.session import session_repository
 
 
 class RefreshableAuthenticationBackend(AuthenticationBackend):
