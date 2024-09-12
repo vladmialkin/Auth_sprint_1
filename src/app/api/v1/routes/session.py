@@ -9,20 +9,11 @@ from app.repository.session import session_repository
 router = APIRouter()
 
 
-@router.get("/history/{user_id}")
+@router.get("/history")
 async def get_history(
     user_token: CurrentUser,
-    session: Session,
-    user_id: UUID,
+    session: Session
 ) -> list[SessionRetrieveSchema]:
     """Получение истории входов пользователя в аккаунт."""
     user = user_token
-
-    if user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return await session_repository.get_history(session)
+    return await session_repository.get_history(session, user.id)
