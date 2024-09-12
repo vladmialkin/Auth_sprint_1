@@ -28,6 +28,7 @@ async def login(
     session: Session,
     credentials: OAuth2Credentials,
 ) -> BearerResponseSchema:
+    """Вход пользователя в аккаунт."""
     user = await user_manager.authenticate(credentials)
 
     if user is None or not user.is_active:
@@ -49,6 +50,7 @@ async def logout(
     refresh_strategy: RefreshStrategy,
     session: Session,
 ) -> Response:
+    """Выход пользователя из аккаунта."""
     user, token = user_token
     return await authentication_backend.logout(
         access_strategy,
@@ -68,6 +70,7 @@ async def refresh(
     refresh_strategy: RefreshStrategy,
     session: Session,
 ) -> RefreshResponseSchema:
+    """Продление сессии пользователя."""
     return await authentication_backend.refresh(
         access_strategy, refresh_strategy, user, session, user_agent
     )

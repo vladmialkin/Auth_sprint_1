@@ -65,7 +65,8 @@ async def revoke_role(
 
     if user_role is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User doesnt have this role"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User doesnt have this role",
         )
 
     return await user_role_repository.delete(session, user_role)
