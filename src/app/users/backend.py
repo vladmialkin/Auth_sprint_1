@@ -1,4 +1,4 @@
-from fastapi import Response, status
+from fastapi import Response, status, HTTPException
 from fastapi_users import models
 from fastapi_users.authentication import AuthenticationBackend
 from fastapi_users.authentication.strategy import JWTStrategy
@@ -9,9 +9,11 @@ from fastapi_users.authentication.transport import (
 from fastapi_users.types import DependencyCallable
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
+from app.models import User, Session
+from app.users.manager import UserManager
 from app.users.schemas import BearerResponseSchema, RefreshResponseSchema
 from app.users.strategy import AccessJWTStrategy, RefreshJWTStrategy
+from app.repository.session import session_repository
 
 
 class RefreshableAuthenticationBackend(AuthenticationBackend):
@@ -86,3 +88,24 @@ class RefreshableAuthenticationBackend(AuthenticationBackend):
             response = Response(status_code=status.HTTP_204_NO_CONTENT)
 
         return response
+
+    async def get_history(
+        self,
+        access_strategy: AccessJWTStrategy,
+        db_session: AsyncSession,
+        token: str,
+        user_manager: UserManager,
+        user_id: str
+    ) -> list[Session]:
+        user = await access_strategy.read_token(token, user_manager)
+
+        if any(
+                [user is None, not user.is_active, user_id != user.id]
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authorized",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        return await session_repository.filter(db_session, user_id=user.id)

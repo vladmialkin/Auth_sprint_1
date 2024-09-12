@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, Response, status
 from fastapi_users.router.common import ErrorCode
 
@@ -72,6 +74,25 @@ async def refresh(
         access_strategy, refresh_strategy, user, session, user_agent
     )
 
+
+@router.get("/history/{user_id}")
+async def get_history(
+    user_token: CurrentUserToken,
+    access_strategy: AccessStrategy,
+    session: Session,
+    user_manager: UserManager,
+    user_id: UUID
+) -> Response:
+    user, token = user_token
+
+    return await authentication_backend.get_history(
+        access_strategy,
+        session,
+        token,
+        user,
+        user_manager,
+        user_id
+    )
 
 router.include_router(
     fastapi_users.get_register_router(UserRetrieveSchema, UserCreateSchema),
