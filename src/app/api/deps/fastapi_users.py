@@ -8,7 +8,7 @@ from fastapi_users import FastAPIUsers, exceptions
 from fastapi_users.db import SQLAlchemyUserDatabase
 
 from app.api.deps.session import Session
-from app.models import User
+from app.models import OAuthAccount, User
 from app.settings.api import settings as api_settings
 from app.settings.jwt import settings as jwt_settings
 from app.users.backend import RefreshableAuthenticationBackend
@@ -21,7 +21,7 @@ from app.users.transport import RefreshableBearerTransport
 async def get_user_db(
     session: Session,
 ) -> AsyncGenerator[SQLAlchemyUserDatabase, None, None]:
-    yield SQLAlchemyUserDatabase(session, User)
+    yield SQLAlchemyUserDatabase(session, User, OAuthAccount)
 
 
 async def get_user_manager(

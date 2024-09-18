@@ -1,7 +1,10 @@
 from datetime import datetime
 from uuid import UUID as PY_UUID
 
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID
+from fastapi_users.db import (
+    SQLAlchemyBaseOAuthAccountTableUUID,
+    SQLAlchemyBaseUserTableUUID,
+)
 from sqlalchemy import (
     Column,
     DateTime,
@@ -34,12 +37,20 @@ class UserRole:
 mapper_registry.map_imperatively(UserRole, user_role)
 
 
+class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
+    pass
+
+
 class User(SQLAlchemyBaseUserTableUUID, Base):
     roles: Mapped[list["Role"]] = relationship(
         "Role", secondary=user_role, back_populates="users"
     )
     sessions: Mapped[list["Session"]] = relationship(
         "Session", back_populates="user"
+    )
+
+    oauth_accounts: Mapped[list[OAuthAccount]] = relationship(
+        "OAuthAccount", lazy="joined"
     )
 
     def __str__(self) -> str:
